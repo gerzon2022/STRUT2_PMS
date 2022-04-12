@@ -1,0 +1,28 @@
+{
+		    		  extend: 'pdf',
+		    		  className: 'btn-primary',
+			            text: 'Export to PDF',
+		    		  customize: function (doc) {
+		    		    doc.content[1].table.widths = 
+		    		        Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+		    		  }
+		    		}
+		    	
+
+		    	$(function () {
+			                        			$('.shift_edit').click(function(){
+			                        			    
+			                        			    if($(this).prop("checked") == true){
+										                alert("Checkbox is checked.");
+										                //$("select").show();
+										                $(this).parent().parent().find("select").not($(this)).prop("disabled",true);
+
+										            }
+										            else if($(this).prop("checked") == false){
+										                alert("Checkbox is unchecked.");
+										               // $("select").hide();
+										                $(this).parent().parent().find("select").not($(this)).prop("disabled",false);
+
+										            }
+										        });
+			                        			  });

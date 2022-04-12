@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1//EN" "http://struts.apache.org/dtds/struts-2.1.dtd">
+<struts>
+   <constant name = "struts.devMode" value = "false" />
+   <package name = "RTA" extends = "struts-default">
+
+		<!-- 
+		Struts.xml file will act as a middle man in every processes between
+		interfaces and database(in MVC concept, it's the controller).
+		
+		in html form tags, there is an action attribute in which you will set to where form data inputs is to be processed,
+		
+		please refer to this action names below to trace the data processes in every registration of personnel, shifts, dayoffs etc.
+		also with the delete and update processes.
+		 
+		in struts2 technology, form actions are created in struts.xml file, there is 3 parameters namely, 1.action name 2.class name 3. method to call/use inside that class name).
+		below are the actions create for this system.
+		
+		in html form action, you should add extention ".action" for it to work, like for example below, you have an action name "logout" to use it in form tag  use "logout.action" ex. <form method="post" action="logout.action">
+		
+		another example in ADDING new personnel, if you are to examine the html form tags, you will see codes same as below
+		<form method="POST" action="register_personnel.action">, if you trace the action you will find it here, look for action name "register_personnel", then you will see the class used and method it calls.
+		
+		in case you are wondering where are the classes located, it is in the package explorer to your left pane, and navigate till 3rd level folders (RTA->src/main/java->com.rpms.action)
+		under com.rpms.action you will find classes then
+		inside the classes, you will find methods.
+		
+		Methods are organized in this manner.
+			1. all Registration/Create/insert processes are in the class named Register.java
+			2. all Retrieval of datas are done inside class named Retrieve.java.
+			3. all delete processes are done by methods inside the Delete.java class
+			4. for update processes you have the methods inside class named UpdateAction.java
+			5. Retrieved data are displayed using variables inside com.rpms.bean classes(shiftbean.java and Location.java).
+			6. LoginAction if for System Authentication where you can locate the methods for creating session by sessionMap Object and destroying session(in jsp we destroy session with invalidate() method, see login/logout method in LoginAction.java)
+		
+		The configuration for your database connection is in the Package com.rpms.dao then below  class named Admin.
+		inside the class named Admin, you will find all the database manipulations, in short, it is in Admin class where you will find all the executions of CRUD processes!
+		
+		How did the struts technology knows what page to go after another?
+		note: when an action below is taken, it calls a method from the specified class, every time you call a method, that method will return a value of String, notice belows code has result name? the returned value of methods should coincide with the result name.
+		Next to result name is type, we only have 1 type used. "chain" as the name says, we chained every results to another action name! 
+		ex. when deleting personnel we have action named "delete_person"(see line 120), it will now call a method named "delete_person" from class "com.rpms.action.Delete", this method returns a string value "DELETED" that coincides with the result named "DELETED"(line 121) it is chained to another action named "retrieve_personnel"(line 113)"
+		then that action calls for another method(it is now a series of connected actions), but notice this time the action has no more type="chain" attribute, meaning that it has stop on that action name and displays the page register_personnel.jsp.(line 114)
+	
+		-->
+		
+		
+		
+		<!-- action from login to logout starts here-->
+		<action name="index" class="com.rpms.action.LoginAction" method="index">
+			<result name="success">/dboard.jsp</result>
+			<result name="login">/index.jsp</result>
+		</action>
+		
+	     <action name="login" class="com.rpms.action.LoginAction" method="execute">
+            <result name="success">/dboard.jsp</result>
+            <result name="login" type="chain">index</result>
+        </action>
+
+		
+
+		<action name="logout" class="com.rpms.action.LoginAction" method="logout">
+            <result name="logout">/index.jsp</result>
+        </action>
+
+
+		<!-- add and delete, retrieve processes for shifts starts here-->
+    	<action name="Process_shift" class="com.rpms.action.Register" method="execute">
+			<result name="SHIFTS" type="chain">retrieve_shift</result>
+			<result name="error" type ="chain">index</result>
+		</action>
+	
+		<action name="Delete_shift" class="com.rpms.action.Delete" method="delete_shifts">
+			<result name="DELETED" type="chain">retrieve_shift</result>
+			<result name="error" type ="chain">index</result>
+		</action>
+		
+		<action name="retrieve_shift" class="com.rpms.action.Retrieve" method="execute">
+			<result name="DISPLAY">/shifts_form.jsp</result>
+			<result name="error" type ="chain">index</result>
+		</action>
+		
+		
+			
+		
+		
+		<!-- add and delete, retrieve processes for day offs starts here-->
+		<action name="reg_day_offs" class="com.rpms.action.Register" method="reg_day_offs">
+			<result name="dayoffs" type="chain">retrieve_day_offs</result>
+			<result name="error" type ="chain">index</result>
+		</action>
+		
+		<action name="Delete_day_off" class="com.rpms.action.Delete" method="delete_day_offs">
+			<result name="DELETED" type="chain">retrieve_day_offs</result>
+			<result name="error" type ="chain">index</result>
+		</action>
+		
+		<action name="retrieve_day_offs" class="com.rpms.action.Retrieve" method="retrieve_day_off_action">
+			<result name="DISPLAY">/day_offs_forms.jsp</result>
+			<result name="error" type ="chain">index</result>
+		</action>
+		
+		<!-- add, delete, retrieve and update processes for personnel starts here-->
+		<action name="register_personnel" class="com.rpms.action.Register" method="reg_personnel">
+			<result name="PERSONNEL" type="chain" >retrieve_personnel</result>
+			<result name="error" type ="chain">index</result>
+		</action>
+		
+		<action name="get_personnel" class="com.rpms.action.Delete" method="retrieve_by_id">
+			<result name="DELETED" type="chain">retrieve_shift</result>
+			<result name="error" type ="chain">index</result>
+		</action>
+		
+		<action name="retrieve_personnel" class="com.rpms.action.Retrieve" method="retrieve_personnel">
+			<result name="DISPLAY">/register_personnel.jsp</result>
+			<result name="error" type ="chain">index</result>
+		</action>
+		
+
+		
+		<action name="Delete_person" class="com.rpms.action.Delete" method="delete_person">
+			<result name="DELETED" type="chain">retrieve_personnel</result>
+			<result name="error" type ="chain">index</result>
+		</action>
+		
+		<action name="update_person_info" class="com.rpms.action.UpdateAction" method="update_personnel">
+			<result name="PERSONNEL" type="chain" >retrieve_personnel</result>
+			<result name="error" type ="chain">index</result>
+		</action>
+		
+		
+		
+		<!-- Update/Retrieve personnel assignment details processes starts here -->
+		<action name="retrieve_personnel_ass" class="com.rpms.action.Retrieve" method="personnel_ass">
+			<result name="DISPLAY">/personnel_ass.jsp</result>
+			<result name="error" type ="chain">index</result>
+		</action>
+		
+		<action name="update_ass" class="com.rpms.action.UpdateAction" method="update_ass">
+			<result name="UPDATE" type="chain">retrieve_personnel_ass</result>
+			<result name="error" type ="chain">index</result>
+		</action>
+		
+		<!-- Add and delete maps processes starts here-->
+		<action name="register_map" class="com.rpms.action.Register" method="reg_map">
+			<result name="MAP" type="chain">retrieve_map</result>
+			<result name="error" type ="chain">index</result>
+		</action>
+		
+		<action name="delete_map" class="com.rpms.action.Delete" method="del_map">
+			<result name="success" type="chain">retrieve_map</result>
+			<result name="error" type ="chain">index</result>
+		</action>
+		
+		<action name="retrieve_map" class="com.rpms.action.Retrieve" method="retrieve_map">
+			<result name="DISPLAY" >/register_map.jsp</result>
+			<result name="error" type ="chain">index</result>
+		</action>
+		
+		
+		<action name="call_shuffle" class="com.rpms.dao.Admin" method="CallingStoredProcedure">
+			<result name="success" type ="chain">retrieve_personnel_ass</result>
+			<result name="error" type ="chain">index</result>
+		</action>
+		
+		
+		
+		
+   </package>
+ 
+
+</struts>
